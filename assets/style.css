@@ -1,0 +1,74 @@
+.slidero-item {
+	display: none;
+}
+.slidero-item.active {
+	display: flex;
+}
+
+.slidero-arrow {
+	display: block;
+	border: solid rgba(255, 255, 255, 0.7);
+	border-width: 0 3px 3px 0;
+	width: 20px;
+	height: 20px;
+	position: absolute;
+	z-index: 9;
+	transition: 0.3s;
+}
+
+.slidero-arrow:hover {
+	cursor: pointer;
+	border: solid white;
+	border-width: 0 3px 3px 0;
+}
+
+.slidero-arrow-right {
+	transform: rotate(-45deg) translateY(-50%);
+	-webkit-transform: rotate(-45deg) translateY(-50%);
+	right: 10px;
+	top: 50%;
+}
+
+.slidero-arrow-left {
+	transform: rotate(135deg) translateY(-50%);
+	-webkit-transform: rotate(135deg) translateY(-50%);
+	left: 10px;
+	top: 50%;
+}
+
+.slidero-arrow-up {
+	transform: rotate(-135deg) translateX(-50%);
+	-webkit-transform: rotate(-135deg) translateX(-50%);
+	top: 10px;
+	left: 50%;
+}
+
+.slidero-arrow-down {
+	transform: rotate(45deg) translateX(-50%);
+	-webkit-transform: rotate(45deg) translateX(-50%);
+	bottom: 10px;
+	left: 50%;
+}
+
+.slidero-dots-holder {
+	display: flex;
+	justify-content: center;
+	gap: 5px;
+	width: 100%;
+	position: absolute;
+	bottom: 20px;
+	left: 0;
+}
+
+.slidero-dot {
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+	background-color: rgba(255, 255, 255, 0.7);
+}
+
+.slidero-dot.active,
+.slidero-dot:hover {
+	background-color: white;
+	cursor: pointer;
+}

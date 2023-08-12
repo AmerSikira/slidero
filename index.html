@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Document</title>
+		<link href="./assets/style.css" rel="stylesheet" type="text/css" />
+	</head>
+	<body>
+		<div id="slider">
+			<img src="https://picsum.photos/900" />
+			<img src="https://picsum.photos/901" />
+			<img src="https://picsum.photos/899" />
+		</div>
+
+		<div id="text">
+			<p>
+				Lorem ipsum, dolor sit amet consectetur adipisicing elit. Optio
+				nostrum consequuntur eveniet, aliquid debitis possimus quidem
+				fuga dolorem veniam atque quod voluptates? Qui consequuntur
+				neque magnam accusantium unde dicta architecto?
+			</p>
+			<p>
+				Lorem ipsum dolor sit amet consectetur adipisicing elit. Tempora
+				impedit, ratione facilis quidem aperiam perspiciatis
+				reprehenderit natus atque assumenda quaerat. Sit perspiciatis
+				assumenda facilis earum. Inventore molestiae quo quibusdam
+				maxime?
+			</p>
+			<p>
+				Lorem ipsum dolor sit, amet consectetur adipisicing elit.
+				Praesentium nobis autem architecto eaque laborum magni delectus
+				esse, rem, nisi accusamus quae in ut ducimus et minus debitis
+				amet. Earum, quaerat!
+			</p>
+		</div>
+		<script src="./dist/index.js"></script>
+		<script>
+			const el = document.getElementById("slider");
+			const slider = new Slidero({
+				el,
+				autoPlaySpeed: 1000,
+			});
+
+			const el2 = document.getElementById("text");
+			const slider2 = new Slidero({
+				el: el2,
+				autoPlaySpeed: 1000,
+			});
+		</script>
+	</body>
+</html>
