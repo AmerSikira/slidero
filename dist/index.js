@@ -196,8 +196,7 @@ _Slidero_instances = new WeakSet(), _Slidero_addSlideroClass = function _Slidero
     for (let i = 0; i < children.length; i++) {
         const dot = __classPrivateFieldGet(this, _Slidero_instances, "m", _Slidero_createSingleDot).call(this);
         __classPrivateFieldGet(this, _Slidero_instances, "m", _Slidero_handleDotClick).call(this, dot, () => {
-            __classPrivateFieldGet(this, _Slidero_instances, "m", _Slidero_addActiveClass).call(this, dots.children, i);
-            __classPrivateFieldGet(this, _Slidero_instances, "m", _Slidero_addActiveClass).call(this, this.el.children, i);
+            __classPrivateFieldGet(this, _Slidero_instances, "m", _Slidero_updateActiveClasses).call(this, i);
         });
         dots.appendChild(dot);
     }
@@ -230,8 +229,7 @@ _Slidero_instances = new WeakSet(), _Slidero_addSlideroClass = function _Slidero
         // Attach a click event handler to the thumbnail
         __classPrivateFieldGet(this, _Slidero_instances, "m", _Slidero_handleThumbnailClick).call(this, thumbnail, () => {
             // Add "active" class to the clicked thumbnail and corresponding slide
-            __classPrivateFieldGet(this, _Slidero_instances, "m", _Slidero_addActiveClass).call(this, thumbnails.children, i);
-            __classPrivateFieldGet(this, _Slidero_instances, "m", _Slidero_addActiveClass).call(this, this.el.children, i);
+            __classPrivateFieldGet(this, _Slidero_instances, "m", _Slidero_updateActiveClasses).call(this, i);
         });
         // Append the created thumbnail to the container
         thumbnails.appendChild(thumbnail);

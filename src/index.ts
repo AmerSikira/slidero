@@ -367,8 +367,7 @@ class Slidero {
 		for (let i = 0; i < children.length; i++) {
 			const dot = this.#createSingleDot();
 			this.#handleDotClick(dot, () => {
-				this.#addActiveClass(dots.children, i);
-				this.#addActiveClass(this.el.children, i);
+				this.#updateActiveClasses(i);
 			});
 			dots.appendChild(dot);
 		}
@@ -421,8 +420,7 @@ class Slidero {
 			// Attach a click event handler to the thumbnail
 			this.#handleThumbnailClick(thumbnail, () => {
 				// Add "active" class to the clicked thumbnail and corresponding slide
-				this.#addActiveClass(thumbnails.children, i);
-				this.#addActiveClass(this.el.children, i);
+				this.#updateActiveClasses(i);
 			});
 
 			// Append the created thumbnail to the container
