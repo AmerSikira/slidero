@@ -22,7 +22,7 @@ Here is the table with all options that Slidero offers.
 | elHeight          | string      | This function defines the height of slider holder. Default: '100vh'                                                            |
 | autoPlay          | boolean     | Whether the slider will autoplay or not.Default: true                                                                          |
 | autoPlaySpeed     | number      | How often will your slides change, time in milliseconds Default: 3000ms                                                        |
-| navigation        | string[]    | The array of strings of the navigation you want for your slider. Currently ["arrows", "dots"]                                  |
+| navigation        | string[]    | The array of strings of the navigation you want for your slider. Currently ["arrows", "dots", "thumbnails"]                    |
 | animationType     | string      | The type of animation that will run between slide change. Currently "zoom" and "fade". Default: '' (no animation)              |
 | animationDuration | number      | How long will animation run. Default: 300ms                                                                                    |
 
