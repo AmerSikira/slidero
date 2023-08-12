@@ -117,6 +117,7 @@ class Slidero {
 			// and remove the "active" class from other elements
 			console.log(els[i]);
 			if (i === index) {
+				//Add animation only to main slides, not to rest of the items and only if animation is set
 				if (
 					els[i].classList.contains("slidero-item") &&
 					this.animationType !== ""
@@ -129,6 +130,7 @@ class Slidero {
 				}
 				els[i].classList.add("active");
 			} else {
+				//Remove animation only from main slides, not the rest of the items and only if animation is set
 				if (
 					els[i].classList.contains("slidero-item") &&
 					this.animationType !== ""
@@ -163,13 +165,22 @@ class Slidero {
 		// NodeList is used, which requires using [0] to access elements
 		const slides = this.el.getElementsByClassName("slidero-item");
 
-		// Check if dots or slides are not found
-		if (!dots || !slides) {
-			throw new Error("No dots or slides found");
+		// Get the collection of thumbnail elements
+		const thumbnails = this.el.querySelector(
+			".slidero-thumbnails-holder"
+		)?.children;
+
+		if (this.navigation.includes("dots") && dots) {
+			// Update the active class for dots
+			this.#addActiveClass(dots, index);
+		}
+		if (this.navigation.includes("thumbnails") && thumbnails) {
+			// Update the active class for thumbnails
+			this.#addActiveClass(thumbnails, index);
 		}
 
 		// Update the active class for both dots and slides
-		this.#addActiveClass(dots, index);
+
 		this.#addActiveClass(slides, index);
 	}
 
@@ -367,6 +378,65 @@ class Slidero {
 	}
 
 	/**
+	 * Create a single thumbnail element with the specified image source.
+	 *
+	 * @param {string} src - The image source URL.
+	 * @returns {HTMLElement} The created thumbnail image element.
+	 */
+	#createSingleThumbnail(src: string): HTMLElement {
+		// Create a new image element
+		const img = document.createElement("img");
+		// Set the source attribute to the provided URL
+		img.src = src;
+		// Add the "slidero-thumbnail" class to the image element
+		img.classList.add("slidero-thumbnail", "slidero-navigation-item");
+		// Return the created thumbnail image element
+		return img;
+	}
+
+	/**
+	 * Create thumbnail elements for each child element of the provided element.
+	 *
+	 * @param {HTMLElement} el - The parent element containing child elements.
+	 */
+	#createThumbnails(el: HTMLElement) {
+		// Find all child elements with the class "slidero-item"
+		const children = el.querySelectorAll(".slidero-item");
+
+		// Create a container for thumbnail elements
+		const thumbnails = document.createElement("div");
+		thumbnails.classList.add("slidero-thumbnails-holder");
+
+		// Iterate through the child elements
+		for (let i = 0; i < children.length; i++) {
+			// Get the source attribute of the current child element
+			let src = this.#getSource(children[i] as HTMLElement);
+
+			// If the source attribute is empty or null, skip to the next iteration
+			if (!src || src === "") continue;
+
+			// Create a thumbnail for the current child element's source
+			const thumbnail = this.#createSingleThumbnail(src);
+
+			// Attach a click event handler to the thumbnail
+			this.#handleThumbnailClick(thumbnail, () => {
+				// Add "active" class to the clicked thumbnail and corresponding slide
+				this.#addActiveClass(thumbnails.children, i);
+				this.#addActiveClass(this.el.children, i);
+			});
+
+			// Append the created thumbnail to the container
+			thumbnails.appendChild(thumbnail);
+		}
+
+		// If no thumbnails were created, return
+		if (thumbnails.children.length === 0) return;
+
+		// Append the container of thumbnails to the parent element
+		el.appendChild(thumbnails);
+	}
+
+	/**
 	 * Create navigation elements (arrows and/or dots) and add event listeners.
 	 *
 	 * @param {HTMLElement} el - The element to which navigation elements will be added.
@@ -393,6 +463,10 @@ class Slidero {
 		// Create dot navigation elements if specified
 		if (this.navigation.includes("dots")) {
 			this.#createDots(el);
+		}
+
+		if (this.navigation.includes("thumbnails")) {
+			this.#createThumbnails(el);
 		}
 	}
 
@@ -427,14 +501,24 @@ class Slidero {
 		});
 	}
 
-	#handleAnimation(el: HTMLElement, duration: number, type: string) {
-		el.style.animation = `${type} ${duration}ms ease-in-out`;
+	/**
+	 * Add a click event listener to a thumbnail element and execute the provided callback.
+	 *
+	 * @param {Element} el - The thumbnail element to which the click event listener will be added.
+	 * @param {Function} callback - The callback function to be executed when the thumbnail is clicked.
+	 */
+	#handleThumbnailClick(el: Element, callback: () => void) {
+		el.addEventListener("click", () => {
+			callback();
+		});
 	}
+
 	/********************************************************************************
 	 * Utils
 	 * TOC:
 	 * 1. getActiveIndex
-	 *
+	 * 2. handleAnimation
+	 * 3. getSource
 	 *******************************************************************************/
 
 	/**
@@ -454,5 +538,37 @@ class Slidero {
 		).indexOf(active);
 		this.activeIndex = activeIndex;
 		return activeIndex;
+	}
+	/**
+	 * Apply animation to an element with the specified duration and animation type.
+	 *
+	 * @param {HTMLElement} el - The element to which the animation will be applied.
+	 * @param {number} duration - The duration of the animation in milliseconds.
+	 * @param {string} type - The type of animation (e.g., "fadeIn", "fadeOut").
+	 */
+	#handleAnimation(el: HTMLElement, duration: number, type: string) {
+		el.style.animation = `${type} ${duration}ms ease-in-out`;
+	}
+
+	/**
+	 * Get the source attribute of an image element or the first image element within the provided element.
+	 *
+	 * @param {HTMLElement} el - The element containing the image element.
+	 * @returns {string | null} The source attribute of the image or null if no image element is found.
+	 */
+	#getSource(el: HTMLElement): string | null {
+		if (el.tagName === "IMG") {
+			// If the provided element is an image element, return its source attribute.
+			return el.getAttribute("src");
+		} else {
+			// If the provided element is not an image element, search for the first image element within it.
+			let imgElement = el.querySelector("img");
+			if (imgElement) {
+				// If an image element is found, return its source attribute.
+				return imgElement.getAttribute("src");
+			}
+		}
+		// If no image element is found, return null.
+		return null;
 	}
 }

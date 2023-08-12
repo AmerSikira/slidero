@@ -4,7 +4,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
     if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
     return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
 };
-var _Slidero_instances, _Slidero_addSlideroClass, _Slidero_initialClassDistribution, _Slidero_addActiveClass, _Slidero_updateActiveClasses, _Slidero_init, _Slidero_next, _Slidero_previous, _Slidero_startInterval, _Slidero_stopInterval, _Slidero_createSingleArrow, _Slidero_createArrows, _Slidero_createSingleDot, _Slidero_createDots, _Slidero_createNavigation, _Slidero_handleArrowClick, _Slidero_handleDotClick, _Slidero_handleAnimation, _Slidero_getActiveIndex;
+var _Slidero_instances, _Slidero_addSlideroClass, _Slidero_initialClassDistribution, _Slidero_addActiveClass, _Slidero_updateActiveClasses, _Slidero_init, _Slidero_next, _Slidero_previous, _Slidero_startInterval, _Slidero_stopInterval, _Slidero_createSingleArrow, _Slidero_createArrows, _Slidero_createSingleDot, _Slidero_createDots, _Slidero_createSingleThumbnail, _Slidero_createThumbnails, _Slidero_createNavigation, _Slidero_handleArrowClick, _Slidero_handleDotClick, _Slidero_handleThumbnailClick, _Slidero_getActiveIndex, _Slidero_handleAnimation, _Slidero_getSource;
 /**
  * Slidero class for creating and managing a slider component.
  */
@@ -70,6 +70,7 @@ _Slidero_instances = new WeakSet(), _Slidero_addSlideroClass = function _Slidero
         // and remove the "active" class from other elements
         console.log(els[i]);
         if (i === index) {
+            //Add animation only to main slides, not to rest of the items and only if animation is set
             if (els[i].classList.contains("slidero-item") &&
                 this.animationType !== "") {
                 __classPrivateFieldGet(this, _Slidero_instances, "m", _Slidero_handleAnimation).call(this, els[i], this.animationDuration, `${this.animationType}In`);
@@ -77,6 +78,7 @@ _Slidero_instances = new WeakSet(), _Slidero_addSlideroClass = function _Slidero
             els[i].classList.add("active");
         }
         else {
+            //Remove animation only from main slides, not the rest of the items and only if animation is set
             if (els[i].classList.contains("slidero-item") &&
                 this.animationType !== "") {
                 els[i].classList.add("out");
@@ -92,18 +94,23 @@ _Slidero_instances = new WeakSet(), _Slidero_addSlideroClass = function _Slidero
         }
     }
 }, _Slidero_updateActiveClasses = function _Slidero_updateActiveClasses(index) {
-    var _a;
+    var _a, _b;
     // Get the collection of dot elements
     const dots = (_a = this.el.querySelector(".slidero-dots-holder")) === null || _a === void 0 ? void 0 : _a.children;
     // Get the collection of slide elements using getElementsByClassName
     // NodeList is used, which requires using [0] to access elements
     const slides = this.el.getElementsByClassName("slidero-item");
-    // Check if dots or slides are not found
-    if (!dots || !slides) {
-        throw new Error("No dots or slides found");
+    // Get the collection of thumbnail elements
+    const thumbnails = (_b = this.el.querySelector(".slidero-thumbnails-holder")) === null || _b === void 0 ? void 0 : _b.children;
+    if (this.navigation.includes("dots") && dots) {
+        // Update the active class for dots
+        __classPrivateFieldGet(this, _Slidero_instances, "m", _Slidero_addActiveClass).call(this, dots, index);
+    }
+    if (this.navigation.includes("thumbnails") && thumbnails) {
+        // Update the active class for thumbnails
+        __classPrivateFieldGet(this, _Slidero_instances, "m", _Slidero_addActiveClass).call(this, thumbnails, index);
     }
     // Update the active class for both dots and slides
-    __classPrivateFieldGet(this, _Slidero_instances, "m", _Slidero_addActiveClass).call(this, dots, index);
     __classPrivateFieldGet(this, _Slidero_instances, "m", _Slidero_addActiveClass).call(this, slides, index);
 }, _Slidero_init = function _Slidero_init(el, autoPlay, autoPlaySpeed) {
     if (autoPlay) {
@@ -196,6 +203,44 @@ _Slidero_instances = new WeakSet(), _Slidero_addSlideroClass = function _Slidero
     }
     // Append the dot container to the provided element
     el.appendChild(dots);
+}, _Slidero_createSingleThumbnail = function _Slidero_createSingleThumbnail(src) {
+    // Create a new image element
+    const img = document.createElement("img");
+    // Set the source attribute to the provided URL
+    img.src = src;
+    // Add the "slidero-thumbnail" class to the image element
+    img.classList.add("slidero-thumbnail", "slidero-navigation-item");
+    // Return the created thumbnail image element
+    return img;
+}, _Slidero_createThumbnails = function _Slidero_createThumbnails(el) {
+    // Find all child elements with the class "slidero-item"
+    const children = el.querySelectorAll(".slidero-item");
+    // Create a container for thumbnail elements
+    const thumbnails = document.createElement("div");
+    thumbnails.classList.add("slidero-thumbnails-holder");
+    // Iterate through the child elements
+    for (let i = 0; i < children.length; i++) {
+        // Get the source attribute of the current child element
+        let src = __classPrivateFieldGet(this, _Slidero_instances, "m", _Slidero_getSource).call(this, children[i]);
+        // If the source attribute is empty or null, skip to the next iteration
+        if (!src || src === "")
+            continue;
+        // Create a thumbnail for the current child element's source
+        const thumbnail = __classPrivateFieldGet(this, _Slidero_instances, "m", _Slidero_createSingleThumbnail).call(this, src);
+        // Attach a click event handler to the thumbnail
+        __classPrivateFieldGet(this, _Slidero_instances, "m", _Slidero_handleThumbnailClick).call(this, thumbnail, () => {
+            // Add "active" class to the clicked thumbnail and corresponding slide
+            __classPrivateFieldGet(this, _Slidero_instances, "m", _Slidero_addActiveClass).call(this, thumbnails.children, i);
+            __classPrivateFieldGet(this, _Slidero_instances, "m", _Slidero_addActiveClass).call(this, this.el.children, i);
+        });
+        // Append the created thumbnail to the container
+        thumbnails.appendChild(thumbnail);
+    }
+    // If no thumbnails were created, return
+    if (thumbnails.children.length === 0)
+        return;
+    // Append the container of thumbnails to the parent element
+    el.appendChild(thumbnails);
 }, _Slidero_createNavigation = function _Slidero_createNavigation(el) {
     // Create arrow navigation elements if specified
     if (this.navigation.includes("arrows")) {
@@ -216,6 +261,9 @@ _Slidero_instances = new WeakSet(), _Slidero_addSlideroClass = function _Slidero
     if (this.navigation.includes("dots")) {
         __classPrivateFieldGet(this, _Slidero_instances, "m", _Slidero_createDots).call(this, el);
     }
+    if (this.navigation.includes("thumbnails")) {
+        __classPrivateFieldGet(this, _Slidero_instances, "m", _Slidero_createThumbnails).call(this, el);
+    }
 }, _Slidero_handleArrowClick = function _Slidero_handleArrowClick(el, callback) {
     el.addEventListener("click", () => {
         callback();
@@ -224,8 +272,10 @@ _Slidero_instances = new WeakSet(), _Slidero_addSlideroClass = function _Slidero
     el.addEventListener("click", () => {
         callback();
     });
-}, _Slidero_handleAnimation = function _Slidero_handleAnimation(el, duration, type) {
-    el.style.animation = `${type} ${duration}ms ease-in-out`;
+}, _Slidero_handleThumbnailClick = function _Slidero_handleThumbnailClick(el, callback) {
+    el.addEventListener("click", () => {
+        callback();
+    });
 }, _Slidero_getActiveIndex = function _Slidero_getActiveIndex(el) {
     const active = el.querySelector(".active");
     if (!active) {
@@ -234,4 +284,21 @@ _Slidero_instances = new WeakSet(), _Slidero_addSlideroClass = function _Slidero
     const activeIndex = Array.from(el.querySelectorAll(".slidero-item")).indexOf(active);
     this.activeIndex = activeIndex;
     return activeIndex;
+}, _Slidero_handleAnimation = function _Slidero_handleAnimation(el, duration, type) {
+    el.style.animation = `${type} ${duration}ms ease-in-out`;
+}, _Slidero_getSource = function _Slidero_getSource(el) {
+    if (el.tagName === "IMG") {
+        // If the provided element is an image element, return its source attribute.
+        return el.getAttribute("src");
+    }
+    else {
+        // If the provided element is not an image element, search for the first image element within it.
+        let imgElement = el.querySelector("img");
+        if (imgElement) {
+            // If an image element is found, return its source attribute.
+            return imgElement.getAttribute("src");
+        }
+    }
+    // If no image element is found, return null.
+    return null;
 };
