@@ -3,9 +3,12 @@
  */
 declare type SliderOptions = {
     el: HTMLElement;
+    elHeight?: string;
     autoPlay?: boolean;
     autoPlaySpeed?: number;
     navigation?: string[];
+    animationType: string;
+    animationDuration?: number;
 };
 /**
  * Slidero class for creating and managing a slider component.
@@ -13,9 +16,12 @@ declare type SliderOptions = {
 declare class Slidero {
     #private;
     el: HTMLElement;
+    elHeight: string;
     autoPlay: boolean;
     autoPlaySpeed: number;
     navigation: string[];
+    animationType: string | "";
+    animationDuration: number;
     activeIndex: number;
     interval: number | null;
     unwantedChildren: string;

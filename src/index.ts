@@ -3,9 +3,12 @@
  */
 type SliderOptions = {
 	el: HTMLElement;
+	elHeight?: string;
 	autoPlay?: boolean;
 	autoPlaySpeed?: number;
 	navigation?: string[];
+	animationType: string;
+	animationDuration?: number;
 };
 
 /**
@@ -13,9 +16,12 @@ type SliderOptions = {
  */
 class Slidero {
 	el: HTMLElement;
+	elHeight: string;
 	autoPlay: boolean;
 	autoPlaySpeed: number;
 	navigation: string[]; //possible values: ["arrows", "dots", "thumbnails"]
+	animationType: string | "";
+	animationDuration: number;
 
 	//Utility stuff
 	activeIndex: number; //We have to keep track of currently active index because we will use it for many things, e.g. dots navigation
@@ -30,6 +36,7 @@ class Slidero {
 	 */
 	constructor(defaults: SliderOptions) {
 		this.el = defaults.el;
+		this.elHeight = defaults.elHeight || "100vh";
 		this.autoPlay = defaults.autoPlay || true;
 		this.autoPlaySpeed = defaults.autoPlaySpeed || 2000;
 		this.navigation = defaults.navigation || [
@@ -37,6 +44,8 @@ class Slidero {
 			"dots",
 			"thumbnails",
 		];
+		this.animationDuration = defaults.animationDuration || 300;
+		this.animationType = defaults.animationType || "";
 
 		this.activeIndex = 0;
 		this.interval = null; //Initialise interval as null because user may have chosen not to have autoplay
@@ -49,12 +58,14 @@ class Slidero {
 
 		//Set el position relative, it is much easier here than in CSS
 		this.el.style.position = "relative";
+		//Set el height, so we don't have issues with position relative and absolute
+		this.el.style.height = this.elHeight;
 
 		// Add the "slidero-item" class to each child element
 		this.#addSlideroClass(this.el);
 
 		// Hide all elements except the first one
-		this.#addActiveClass(this.el.children, 0);
+		this.#initialClassDistribution(this.el.children);
 
 		// Initialize the slider and autoplay if enabled
 		this.#init(this.el, this.autoPlay, this.autoPlaySpeed);
@@ -84,6 +95,16 @@ class Slidero {
 		}
 	}
 
+	#initialClassDistribution(els: HTMLCollection) {
+		for (let i = 0; i < els.length; i++) {
+			if (i === 0) {
+				els[i].classList.add("active");
+			} else {
+				els[i].classList.add("out");
+			}
+		}
+	}
+
 	/**
 	 * Add or remove the "active" class to elements based on the provided index.
 	 *
@@ -94,10 +115,37 @@ class Slidero {
 		for (let i = 0; i < els.length; i++) {
 			// Add the "active" class to the element at the specified index
 			// and remove the "active" class from other elements
+			console.log(els[i]);
 			if (i === index) {
+				if (
+					els[i].classList.contains("slidero-item") &&
+					this.animationType !== ""
+				) {
+					this.#handleAnimation(
+						els[i] as HTMLElement,
+						this.animationDuration,
+						`${this.animationType}In`
+					);
+				}
 				els[i].classList.add("active");
 			} else {
-				els[i].classList.remove("active");
+				if (
+					els[i].classList.contains("slidero-item") &&
+					this.animationType !== ""
+				) {
+					els[i].classList.add("out");
+					this.#handleAnimation(
+						els[i] as HTMLElement,
+						this.animationDuration,
+						`${this.animationType}Out`
+					);
+					setTimeout(() => {
+						els[i].classList.remove("out");
+						els[i].classList.remove("active");
+					}, this.animationDuration);
+				} else {
+					els[i].classList.remove("active");
+				}
 			}
 		}
 	}
@@ -379,6 +427,9 @@ class Slidero {
 		});
 	}
 
+	#handleAnimation(el: HTMLElement, duration: number, type: string) {
+		el.style.animation = `${type} ${duration}ms ease-in-out`;
+	}
 	/********************************************************************************
 	 * Utils
 	 * TOC:

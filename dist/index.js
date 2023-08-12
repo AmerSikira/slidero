@@ -4,7 +4,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
     if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
     return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
 };
-var _Slidero_instances, _Slidero_addSlideroClass, _Slidero_addActiveClass, _Slidero_updateActiveClasses, _Slidero_init, _Slidero_next, _Slidero_previous, _Slidero_startInterval, _Slidero_stopInterval, _Slidero_createSingleArrow, _Slidero_createArrows, _Slidero_createSingleDot, _Slidero_createDots, _Slidero_createNavigation, _Slidero_handleArrowClick, _Slidero_handleDotClick, _Slidero_getActiveIndex;
+var _Slidero_instances, _Slidero_addSlideroClass, _Slidero_initialClassDistribution, _Slidero_addActiveClass, _Slidero_updateActiveClasses, _Slidero_init, _Slidero_next, _Slidero_previous, _Slidero_startInterval, _Slidero_stopInterval, _Slidero_createSingleArrow, _Slidero_createArrows, _Slidero_createSingleDot, _Slidero_createDots, _Slidero_createNavigation, _Slidero_handleArrowClick, _Slidero_handleDotClick, _Slidero_handleAnimation, _Slidero_getActiveIndex;
 /**
  * Slidero class for creating and managing a slider component.
  */
@@ -18,6 +18,7 @@ class Slidero {
     constructor(defaults) {
         _Slidero_instances.add(this);
         this.el = defaults.el;
+        this.elHeight = defaults.elHeight || "100vh";
         this.autoPlay = defaults.autoPlay || true;
         this.autoPlaySpeed = defaults.autoPlaySpeed || 2000;
         this.navigation = defaults.navigation || [
@@ -25,6 +26,8 @@ class Slidero {
             "dots",
             "thumbnails",
         ];
+        this.animationDuration = defaults.animationDuration || 300;
+        this.animationType = defaults.animationType || "";
         this.activeIndex = 0;
         this.interval = null; //Initialise interval as null because user may have chosen not to have autoplay
         this.unwantedChildren = "slidero-navigation-item";
@@ -34,10 +37,12 @@ class Slidero {
         }
         //Set el position relative, it is much easier here than in CSS
         this.el.style.position = "relative";
+        //Set el height, so we don't have issues with position relative and absolute
+        this.el.style.height = this.elHeight;
         // Add the "slidero-item" class to each child element
         __classPrivateFieldGet(this, _Slidero_instances, "m", _Slidero_addSlideroClass).call(this, this.el);
         // Hide all elements except the first one
-        __classPrivateFieldGet(this, _Slidero_instances, "m", _Slidero_addActiveClass).call(this, this.el.children, 0);
+        __classPrivateFieldGet(this, _Slidero_instances, "m", _Slidero_initialClassDistribution).call(this, this.el.children);
         // Initialize the slider and autoplay if enabled
         __classPrivateFieldGet(this, _Slidero_instances, "m", _Slidero_init).call(this, this.el, this.autoPlay, this.autoPlaySpeed);
         //Add navigation
@@ -50,15 +55,40 @@ _Slidero_instances = new WeakSet(), _Slidero_addSlideroClass = function _Slidero
     for (let i = 0; i < el.children.length; i++) {
         el.children[i].classList.add("slidero-item");
     }
+}, _Slidero_initialClassDistribution = function _Slidero_initialClassDistribution(els) {
+    for (let i = 0; i < els.length; i++) {
+        if (i === 0) {
+            els[i].classList.add("active");
+        }
+        else {
+            els[i].classList.add("out");
+        }
+    }
 }, _Slidero_addActiveClass = function _Slidero_addActiveClass(els, index) {
     for (let i = 0; i < els.length; i++) {
         // Add the "active" class to the element at the specified index
         // and remove the "active" class from other elements
+        console.log(els[i]);
         if (i === index) {
+            if (els[i].classList.contains("slidero-item") &&
+                this.animationType !== "") {
+                __classPrivateFieldGet(this, _Slidero_instances, "m", _Slidero_handleAnimation).call(this, els[i], this.animationDuration, `${this.animationType}In`);
+            }
             els[i].classList.add("active");
         }
         else {
-            els[i].classList.remove("active");
+            if (els[i].classList.contains("slidero-item") &&
+                this.animationType !== "") {
+                els[i].classList.add("out");
+                __classPrivateFieldGet(this, _Slidero_instances, "m", _Slidero_handleAnimation).call(this, els[i], this.animationDuration, `${this.animationType}Out`);
+                setTimeout(() => {
+                    els[i].classList.remove("out");
+                    els[i].classList.remove("active");
+                }, this.animationDuration);
+            }
+            else {
+                els[i].classList.remove("active");
+            }
         }
     }
 }, _Slidero_updateActiveClasses = function _Slidero_updateActiveClasses(index) {
@@ -194,6 +224,8 @@ _Slidero_instances = new WeakSet(), _Slidero_addSlideroClass = function _Slidero
     el.addEventListener("click", () => {
         callback();
     });
+}, _Slidero_handleAnimation = function _Slidero_handleAnimation(el, duration, type) {
+    el.style.animation = `${type} ${duration}ms ease-in-out`;
 }, _Slidero_getActiveIndex = function _Slidero_getActiveIndex(el) {
     const active = el.querySelector(".active");
     if (!active) {
